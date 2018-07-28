@@ -1,27 +1,15 @@
-'use strict';
+import { getParentIds } from './helper';
+import { PAGE, PRODUCT_CATEGORY, PRODUCT, RESERVED } from '../pageTypes';
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.getJSONLD = undefined;
-
-var _helper = require('./helper');
-
-var _pageTypes = require('../pageTypes');
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-var getBreadcrumbsForProduct = function getBreadcrumbsForProduct(product, categories) {
+const getBreadcrumbsForProduct = (product, categories) => {
 	if (product && product.category_id) {
-		var ids = [product.category_id];
-		var parentIds = (0, _helper.getParentIds)(categories, product.category_id);
-		ids.push.apply(ids, _toConsumableArray(parentIds));
+		let ids = [product.category_id];
+		let parentIds = getParentIds(categories, product.category_id);
+		ids.push(...parentIds);
 
-		var index = 0;
-		var breadcrumbs = ids.reverse().map(function (categoryId) {
-			var category = categories.find(function (item) {
-				return item.id === categoryId;
-			});
+		let index = 0;
+		const breadcrumbs = ids.reverse().map(categoryId => {
+			const category = categories.find(item => item.id === categoryId);
 			if (category) {
 				index++;
 				return getBreadcrumbItem(category.url, category.name, index);
@@ -38,15 +26,13 @@ var getBreadcrumbsForProduct = function getBreadcrumbsForProduct(product, catego
 	}
 };
 
-var getBreadcrumbsForCategory = function getBreadcrumbsForCategory(currentCategoryId, categories) {
+const getBreadcrumbsForCategory = (currentCategoryId, categories) => {
 	if (currentCategoryId) {
-		var ids = (0, _helper.getParentIds)(categories, currentCategoryId);
+		let ids = getParentIds(categories, currentCategoryId);
 
-		var index = 0;
-		var breadcrumbs = ids.reverse().map(function (categoryId) {
-			var category = categories.find(function (item) {
-				return item.id === categoryId;
-			});
+		let index = 0;
+		const breadcrumbs = ids.reverse().map(categoryId => {
+			const category = categories.find(item => item.id === categoryId);
 			if (category) {
 				index++;
 				return getBreadcrumbItem(category.url, category.name, index);
@@ -63,19 +49,17 @@ var getBreadcrumbsForCategory = function getBreadcrumbsForCategory(currentCatego
 	}
 };
 
-var getBreadcrumbItem = function getBreadcrumbItem(url, name, position) {
-	return {
-		'@type': 'ListItem',
-		position: position,
-		item: {
-			'@id': url,
-			name: name
-		}
-	};
-};
+const getBreadcrumbItem = (url, name, position) => ({
+	'@type': 'ListItem',
+	position: position,
+	item: {
+		'@id': url,
+		name: name
+	}
+});
 
-var getProduct = function getProduct(product, settings) {
-	var imageUrl = product.images && product.images.length > 0 ? product.images[0].url : null;
+const getProduct = (product, settings) => {
+	let imageUrl = product.images && product.images.length > 0 ? product.images[0].url : null;
 
 	return {
 		'@context': 'http://schema.org/',
@@ -93,9 +77,9 @@ var getProduct = function getProduct(product, settings) {
 	};
 };
 
-var getProductJSONLD = function getProductJSONLD(product, categories, settings) {
-	var jsonldArray = [];
-	var breadcrumbs = getBreadcrumbsForProduct(product, categories);
+const getProductJSONLD = (product, categories, settings) => {
+	let jsonldArray = [];
+	const breadcrumbs = getBreadcrumbsForProduct(product, categories);
 	if (breadcrumbs) {
 		jsonldArray.push(breadcrumbs);
 	}
@@ -104,22 +88,22 @@ var getProductJSONLD = function getProductJSONLD(product, categories, settings) 
 	return jsonldArray.length > 0 ? JSON.stringify(jsonldArray) : '';
 };
 
-var getCategoryJSONLD = function getCategoryJSONLD(categoryId, categories) {
-	var jsonldArray = [];
-	var breadcrumbs = getBreadcrumbsForCategory(categoryId, categories);
+const getCategoryJSONLD = (categoryId, categories) => {
+	let jsonldArray = [];
+	const breadcrumbs = getBreadcrumbsForCategory(categoryId, categories);
 	if (breadcrumbs) {
 		jsonldArray.push(breadcrumbs);
 	}
 	return jsonldArray.length > 0 ? JSON.stringify(jsonldArray) : '';
 };
 
-var getJSONLD = exports.getJSONLD = function getJSONLD(state) {
+export const getJSONLD = state => {
 	if (typeof window === 'undefined') {
 		switch (state.currentPage.type) {
-			case _pageTypes.PRODUCT:
+			case PRODUCT:
 				return getProductJSONLD(state.productDetails, state.categories, state.settings);
 				break;
-			case _pageTypes.PRODUCT_CATEGORY:
+			case PRODUCT_CATEGORY:
 				return getCategoryJSONLD(state.categoryDetails.id, state.categories);
 				break;
 			default:

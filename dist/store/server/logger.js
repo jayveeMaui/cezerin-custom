@@ -1,7 +1,5 @@
-'use strict';
-
-var winston = require('winston');
-var LOGS_FILE = 'logs/server.log';
+import winston from 'winston';
+const LOGS_FILE = 'logs/server.log';
 
 winston.configure({
 	level: 'info',
@@ -13,3 +11,5 @@ winston.configure({
 		handleExceptions: true
 	})]
 });
+
+export default {};

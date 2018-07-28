@@ -1,55 +1,28 @@
-'use strict';
+import winston from 'winston';
+import CezerinClient from 'cezerin-client';
+import React from 'react';
+import { StaticRouter } from 'react-router';
+import { renderToString } from 'react-dom/server';
+import { createStore, applyMiddleware } from 'redux';
+import thunkMiddleware from 'redux-thunk';
+import { Provider } from 'react-redux';
+import Helmet from 'react-helmet';
+import { initOnServer } from 'theme';
+import serverSettings from './settings';
+import reducers from '../shared/reducers';
+import { loadState } from './loadState';
+import { indexHtml } from './readIndexHtml';
+import App from '../shared/app';
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
+initOnServer({
+	language: serverSettings.language,
+	api: new CezerinClient({
+		ajaxBaseUrl: serverSettings.ajaxBaseUrl
+	})
 });
 
-var _winston = require('winston');
-
-var _winston2 = _interopRequireDefault(_winston);
-
-var _settings = require('./settings');
-
-var _settings2 = _interopRequireDefault(_settings);
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactRouter = require('react-router');
-
-var _server = require('react-dom/server');
-
-var _redux = require('redux');
-
-var _reduxThunk = require('redux-thunk');
-
-var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
-
-var _reactRedux = require('react-redux');
-
-var _reactHelmet = require('react-helmet');
-
-var _reactHelmet2 = _interopRequireDefault(_reactHelmet);
-
-var _theme = require('theme');
-
-var _reducers = require('../shared/reducers');
-
-var _reducers2 = _interopRequireDefault(_reducers);
-
-var _loadState = require('./loadState');
-
-var _readIndexHtml = require('./readIndexHtml');
-
-var _app = require('../shared/app');
-
-var _app2 = _interopRequireDefault(_app);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var getHead = function getHead() {
-	var helmet = _reactHelmet2.default.rewind();
+const getHead = () => {
+	const helmet = Helmet.rewind();
 	return {
 		title: helmet.title.toString(),
 		meta: helmet.meta.toString(),
@@ -62,39 +35,35 @@ var getHead = function getHead() {
 	};
 };
 
-var getReferrerCookieOptions = function getReferrerCookieOptions(isHttps) {
-	return {
-		maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-		httpOnly: true,
-		signed: true,
-		secure: isHttps,
-		sameSite: 'strict'
-	};
-};
+const getReferrerCookieOptions = isHttps => ({
+	maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+	httpOnly: true,
+	signed: true,
+	secure: isHttps,
+	sameSite: 'strict'
+});
 
-var renderError = function renderError(req, res, err) {
-	_winston2.default.error('Page error', req.url, err);
+const renderError = (req, res, err) => {
+	winston.error('Page error', req.url, err);
 	res.status(500).send(err);
 };
 
-var getAppHtml = function getAppHtml(store, location) {
-	var context = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-	var html = (0, _server.renderToString)(_react2.default.createElement(
-		_reactRedux.Provider,
+const getAppHtml = (store, location, context = {}) => {
+	const html = renderToString(React.createElement(
+		Provider,
 		{ store: store },
-		_react2.default.createElement(
-			_reactRouter.StaticRouter,
+		React.createElement(
+			StaticRouter,
 			{ location: location, context: context },
-			_react2.default.createElement(_app2.default, null)
+			React.createElement(App, null)
 		)
 	));
 
 	return html;
 };
 
-var getPlaceholder = function getPlaceholder(placeholders) {
-	var placeholder = {
+const getPlaceholder = placeholders => {
+	let placeholder = {
 		head_start: '',
 		head_end: '',
 		body_start: '',
@@ -102,43 +71,27 @@ var getPlaceholder = function getPlaceholder(placeholders) {
 	};
 
 	if (placeholders && placeholders.length > 0) {
-		placeholder.head_start = placeholders.filter(function (p) {
-			return p.place === 'head_start';
-		}).map(function (p) {
-			return p.value;
-		}).join('\n');
-		placeholder.head_end = placeholders.filter(function (p) {
-			return p.place === 'head_end';
-		}).map(function (p) {
-			return p.value;
-		}).join('\n');
-		placeholder.body_start = placeholders.filter(function (p) {
-			return p.place === 'body_start';
-		}).map(function (p) {
-			return p.value;
-		}).join('\n');
-		placeholder.body_end = placeholders.filter(function (p) {
-			return p.place === 'body_end';
-		}).map(function (p) {
-			return p.value;
-		}).join('\n');
+		placeholder.head_start = placeholders.filter(p => p.place === 'head_start').map(p => p.value).join('\n');
+		placeholder.head_end = placeholders.filter(p => p.place === 'head_end').map(p => p.value).join('\n');
+		placeholder.body_start = placeholders.filter(p => p.place === 'body_start').map(p => p.value).join('\n');
+		placeholder.body_end = placeholders.filter(p => p.place === 'body_end').map(p => p.value).join('\n');
 	}
 
 	return placeholder;
 };
 
-var renderPage = function renderPage(req, res, store, themeText, placeholders) {
-	var appHtml = getAppHtml(store, req.url);
-	var state = store.getState();
-	var head = getHead();
-	var placeholder = getPlaceholder(placeholders);
+const renderPage = (req, res, store, themeText, placeholders) => {
+	const appHtml = getAppHtml(store, req.url);
+	const state = store.getState();
+	const head = getHead();
+	const placeholder = getPlaceholder(placeholders);
 
-	var html = _readIndexHtml.indexHtml.replace('{placeholder_head_start}', placeholder.head_start).replace('{placeholder_head_end}', placeholder.head_end).replace('{placeholder_body_start}', placeholder.body_start).replace('{placeholder_body_end}', placeholder.body_end).replace('{language}', _settings2.default.language).replace('{title}', head.title).replace('{meta}', head.meta).replace('{link}', head.link).replace('{script}', head.script).replace('{app_text}', JSON.stringify(themeText)).replace('{app_state}', JSON.stringify(state)).replace('{app}', appHtml);
+	const html = indexHtml.replace('{placeholder_head_start}', placeholder.head_start).replace('{placeholder_head_end}', placeholder.head_end).replace('{placeholder_body_start}', placeholder.body_start).replace('{placeholder_body_end}', placeholder.body_end).replace('{language}', serverSettings.language).replace('{title}', head.title).replace('{meta}', head.meta).replace('{link}', head.link).replace('{script}', head.script).replace('{app_text}', JSON.stringify(themeText)).replace('{app_state}', JSON.stringify(state)).replace('{app}', appHtml);
 
-	var isHttps = req.protocol === 'https';
-	var full_url = req.protocol + '://' + req.hostname + req.url;
-	var referrer_url = req.get('referrer') === undefined ? '' : req.get('referrer');
-	var REFERRER_COOKIE_OPTIONS = getReferrerCookieOptions(isHttps);
+	const isHttps = req.protocol === 'https';
+	const full_url = `${req.protocol}://${req.hostname}${req.url}`;
+	const referrer_url = req.get('referrer') === undefined ? '' : req.get('referrer');
+	const REFERRER_COOKIE_OPTIONS = getReferrerCookieOptions(isHttps);
 
 	if (!req.signedCookies.referrer_url) {
 		res.cookie('referrer_url', referrer_url, REFERRER_COOKIE_OPTIONS);
@@ -148,25 +101,21 @@ var renderPage = function renderPage(req, res, store, themeText, placeholders) {
 		res.cookie('landing_url', full_url, REFERRER_COOKIE_OPTIONS);
 	}
 
-	var httpStatusCode = state.app.currentPage.type === 404 ? 404 : 200;
+	const httpStatusCode = state.app.currentPage.type === 404 ? 404 : 200;
 	res.status(httpStatusCode).send(html);
 };
 
-var pageRendering = function pageRendering(req, res) {
-	(0, _loadState.loadState)(req, _settings2.default.language).then(function (_ref) {
-		var state = _ref.state,
-		    themeText = _ref.themeText,
-		    placeholders = _ref.placeholders;
-
-		(0, _theme.updateThemeSettings)({
-			settings: state.app.themeSettings,
+const pageRendering = (req, res) => {
+	loadState(req, serverSettings.language).then(({ state, themeText, placeholders }) => {
+		initOnServer({
+			themeSettings: state.app.themeSettings,
 			text: themeText
 		});
-		var store = (0, _redux.createStore)(_reducers2.default, state, (0, _redux.applyMiddleware)(_reduxThunk2.default));
+		const store = createStore(reducers, state, applyMiddleware(thunkMiddleware));
 		renderPage(req, res, store, themeText, placeholders);
-	}).catch(function (err) {
+	}).catch(err => {
 		renderError(req, res, err);
 	});
 };
 
-exports.default = pageRendering;
+export default pageRendering;

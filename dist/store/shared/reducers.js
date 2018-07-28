@@ -1,27 +1,10 @@
-'use strict';
+import { combineReducers } from 'redux';
+import { reducer as formReducer } from 'redux-form';
+import * as t from './actionTypes';
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
+const initialState = {};
 
-var _redux = require('redux');
-
-var _reduxForm = require('redux-form');
-
-var _actionTypes = require('./actionTypes');
-
-var t = _interopRequireWildcard(_actionTypes);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-var initialState = {};
-
-var appReducer = function appReducer() {
-	var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-	var action = arguments[1];
-
+const appReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case t.PRODUCT_RECEIVE:
 			return Object.assign({}, state, { productDetails: action.product });
@@ -52,7 +35,7 @@ var appReducer = function appReducer() {
 		case t.MORE_PRODUCTS_RECEIVE:
 			return Object.assign({}, state, {
 				loadingMoreProducts: false,
-				products: [].concat(_toConsumableArray(state.products), _toConsumableArray(action.products.data)),
+				products: [...state.products, ...action.products.data],
 				productsTotalCount: action.products.total_count,
 				productsHasMore: action.products.has_more
 			});
@@ -117,4 +100,4 @@ var appReducer = function appReducer() {
 	}
 };
 
-exports.default = (0, _redux.combineReducers)({ app: appReducer, form: _reduxForm.reducer });
+export default combineReducers({ app: appReducer, form: formReducer });

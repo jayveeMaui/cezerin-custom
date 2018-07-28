@@ -1,10 +1,5 @@
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var PAGE = exports.PAGE = 'page';
-var PRODUCT_CATEGORY = exports.PRODUCT_CATEGORY = 'product-category';
-var PRODUCT = exports.PRODUCT = 'product';
-var RESERVED = exports.RESERVED = 'reserved';
-var SEARCH = exports.SEARCH = 'search';
+export const PAGE = 'page';
+export const PRODUCT_CATEGORY = 'product-category';
+export const PRODUCT = 'product';
+export const RESERVED = 'reserved';
+export const SEARCH = 'search';

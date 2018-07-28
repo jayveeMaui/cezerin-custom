@@ -1,35 +1,17 @@
-'use strict';
+import { PAGE, PRODUCT_CATEGORY, PRODUCT, RESERVED, SEARCH } from '../pageTypes';
+import * as googleAnalytics from './googleAnalytics';
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.setShippingMethod = exports.setPaymentMethod = exports.checkoutSuccess = exports.checkoutView = exports.deleteCartItem = exports.addCartItem = exports.search = exports.productView = exports.pageView = exports.onPageLoad = undefined;
-
-var _pageTypes = require('../pageTypes');
-
-var _googleAnalytics = require('./googleAnalytics');
-
-var googleAnalytics = _interopRequireWildcard(_googleAnalytics);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var onPageLoad = exports.onPageLoad = function onPageLoad(_ref) {
-	var state = _ref.state;
-	var _state$app = state.app,
-	    currentPage = _state$app.currentPage,
-	    productDetails = _state$app.productDetails,
-	    productFilter = _state$app.productFilter,
-	    cart = _state$app.cart;
-
+export const onPageLoad = ({ state }) => {
+	const { currentPage, productDetails, productFilter, cart } = state.app;
 
 	switch (currentPage.type) {
-		case _pageTypes.PRODUCT:
+		case PRODUCT:
 			productView({ product: productDetails });
 			break;
-		case _pageTypes.SEARCH:
+		case SEARCH:
 			search({ searchText: productFilter.search });
 			break;
-		case _pageTypes.PAGE:
+		case PAGE:
 			if (currentPage.path === '/checkout') {
 				checkoutView({ order: cart });
 			}
@@ -37,75 +19,50 @@ var onPageLoad = exports.onPageLoad = function onPageLoad(_ref) {
 	}
 };
 
-var pageView = exports.pageView = function pageView(_ref2) {
-	var path = _ref2.path,
-	    title = _ref2.title;
-
-	googleAnalytics.pageView({ path: path, title: title });
+export const pageView = ({ path, title }) => {
+	googleAnalytics.pageView({ path, title });
 };
 
-var productView = exports.productView = function productView(_ref3) {
-	var product = _ref3.product;
-
-	googleAnalytics.viewItem({ product: product });
+export const productView = ({ product }) => {
+	googleAnalytics.viewItem({ product });
 };
 
-var search = exports.search = function search(_ref4) {
-	var searchText = _ref4.searchText;
-
+export const search = ({ searchText }) => {
 	if (searchText && searchText.length > 0) {
-		googleAnalytics.search({ searchText: searchText });
+		googleAnalytics.search({ searchText });
 	}
 };
 
-var addCartItem = exports.addCartItem = function addCartItem(_ref5) {
-	var item = _ref5.item,
-	    cart = _ref5.cart;
-
-	googleAnalytics.addToCart({ item: item, cart: cart });
+export const addCartItem = ({ item, cart }) => {
+	googleAnalytics.addToCart({ item, cart });
 };
 
-var deleteCartItem = exports.deleteCartItem = function deleteCartItem(_ref6) {
-	var itemId = _ref6.itemId,
-	    cart = _ref6.cart;
-
-	googleAnalytics.removeFromCart({ itemId: itemId, cart: cart });
+export const deleteCartItem = ({ itemId, cart }) => {
+	googleAnalytics.removeFromCart({ itemId, cart });
 };
 
-var checkoutView = exports.checkoutView = function checkoutView(_ref7) {
-	var order = _ref7.order;
-
+export const checkoutView = ({ order }) => {
 	if (order && order.items && order.items.length > 0) {
-		googleAnalytics.beginCheckout({ order: order });
+		googleAnalytics.beginCheckout({ order });
 	}
 };
 
-var checkoutSuccess = exports.checkoutSuccess = function checkoutSuccess(_ref8) {
-	var order = _ref8.order;
-
+export const checkoutSuccess = ({ order }) => {
 	if (order && order.items && order.items.length > 0) {
-		googleAnalytics.purchase({ order: order });
+		googleAnalytics.purchase({ order });
 	}
 };
 
-var findMethodById = function findMethodById(_ref9) {
-	var methodId = _ref9.methodId,
-	    allMethods = _ref9.allMethods;
-
+const findMethodById = ({ methodId, allMethods }) => {
 	if (methodId && allMethods && allMethods.length > 0) {
-		return allMethods.find(function (m) {
-			return m.id === methodId;
-		});
+		return allMethods.find(m => m.id === methodId);
 	} else {
 		return null;
 	}
 };
 
-var setPaymentMethod = exports.setPaymentMethod = function setPaymentMethod(_ref10) {
-	var methodId = _ref10.methodId,
-	    allMethods = _ref10.allMethods;
-
-	var method = findMethodById({ methodId: methodId, allMethods: allMethods });
+export const setPaymentMethod = ({ methodId, allMethods }) => {
+	const method = findMethodById({ methodId, allMethods });
 	if (method) {
 		googleAnalytics.setCheckoutOption({
 			step: 1,
@@ -115,11 +72,8 @@ var setPaymentMethod = exports.setPaymentMethod = function setPaymentMethod(_ref
 	}
 };
 
-var setShippingMethod = exports.setShippingMethod = function setShippingMethod(_ref11) {
-	var methodId = _ref11.methodId,
-	    allMethods = _ref11.allMethods;
-
-	var method = findMethodById({ methodId: methodId, allMethods: allMethods });
+export const setShippingMethod = ({ methodId, allMethods }) => {
+	const method = findMethodById({ methodId, allMethods });
 	if (method) {
 		googleAnalytics.setCheckoutOption({
 			step: 1,

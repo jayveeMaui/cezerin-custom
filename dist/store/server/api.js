@@ -1,30 +1,14 @@
-'use strict';
+import jwt from 'jsonwebtoken';
+import CezerinClient from 'cezerin-client';
+import serverSettings from './settings';
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
+const TOKEN_PAYLOAD = { email: 'store', scopes: ['admin'] };
+const STORE_ACCESS_TOKEN = jwt.sign(TOKEN_PAYLOAD, serverSettings.jwtSecretKey);
 
-var _jsonwebtoken = require('jsonwebtoken');
-
-var _jsonwebtoken2 = _interopRequireDefault(_jsonwebtoken);
-
-var _cezerinClient = require('cezerin-client');
-
-var _cezerinClient2 = _interopRequireDefault(_cezerinClient);
-
-var _settings = require('./settings');
-
-var _settings2 = _interopRequireDefault(_settings);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var TOKEN_PAYLOAD = { email: 'store', scopes: ['admin'] };
-var STORE_ACCESS_TOKEN = _jsonwebtoken2.default.sign(TOKEN_PAYLOAD, _settings2.default.jwtSecretKey);
-
-var api = new _cezerinClient2.default({
-	apiBaseUrl: _settings2.default.apiBaseUrl,
-	ajaxBaseUrl: _settings2.default.ajaxBaseUrl,
+const api = new CezerinClient({
+	apiBaseUrl: serverSettings.apiBaseUrl,
+	ajaxBaseUrl: serverSettings.ajaxBaseUrl,
 	apiToken: STORE_ACCESS_TOKEN
 });
 
-exports.default = api;
+export default api;

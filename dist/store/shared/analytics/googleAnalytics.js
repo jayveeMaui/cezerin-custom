@@ -1,9 +1,4 @@
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-var event = {
+const event = {
 	PAGE_VIEW: 'page_view',
 	VIEW_ITEM: 'view_item',
 	BEGIN_CHECKOUT: 'begin_checkout',
@@ -14,10 +9,7 @@ var event = {
 	PURCHASE: 'purchase'
 };
 
-var pageView = exports.pageView = function pageView(_ref) {
-	var path = _ref.path,
-	    title = _ref.title;
-
+export const pageView = ({ path, title }) => {
 	logEvent({
 		eventName: event.PAGE_VIEW,
 		eventParameters: {
@@ -27,10 +19,8 @@ var pageView = exports.pageView = function pageView(_ref) {
 	});
 };
 
-var viewItem = exports.viewItem = function viewItem(_ref2) {
-	var product = _ref2.product;
-
-	var productData = {
+export const viewItem = ({ product }) => {
+	const productData = {
 		id: product.sku && product.sku.length > 0 ? product.sku : product.id,
 		name: product.name,
 		category: product.category_name,
@@ -45,18 +35,13 @@ var viewItem = exports.viewItem = function viewItem(_ref2) {
 	});
 };
 
-var addToCart = exports.addToCart = function addToCart(_ref3) {
-	var item = _ref3.item,
-	    cart = _ref3.cart;
-
-	var cartItem = cart && cart.items && cart.items.length > 0 ? cart.items.find(function (e) {
-		return e.product_id === item.product_id && e.variant_id == item.variant_id;
-	}) : null;
+export const addToCart = ({ item, cart }) => {
+	const cartItem = cart && cart.items && cart.items.length > 0 ? cart.items.find(e => e.product_id === item.product_id && e.variant_id == item.variant_id) : null;
 	if (!cartItem) {
 		return;
 	}
 
-	var gaItem = {
+	const gaItem = {
 		id: cartItem.sku && cartItem.sku.length > 0 ? cartItem.sku : cartItem.product_id,
 		name: cartItem.name,
 		price: cartItem.price.toString(),
@@ -72,18 +57,13 @@ var addToCart = exports.addToCart = function addToCart(_ref3) {
 	});
 };
 
-var removeFromCart = exports.removeFromCart = function removeFromCart(_ref4) {
-	var itemId = _ref4.itemId,
-	    cart = _ref4.cart;
-
-	var cartItem = cart && cart.items && cart.items.length > 0 ? cart.items.find(function (e) {
-		return e.id === itemId;
-	}) : null;
+export const removeFromCart = ({ itemId, cart }) => {
+	const cartItem = cart && cart.items && cart.items.length > 0 ? cart.items.find(e => e.id === itemId) : null;
 	if (!cartItem) {
 		return;
 	}
 
-	var gaItem = {
+	const gaItem = {
 		id: cartItem.sku && cartItem.sku.length > 0 ? cartItem.sku : cartItem.product_id,
 		name: cartItem.name,
 		price: cartItem.price.toString(),
@@ -99,11 +79,7 @@ var removeFromCart = exports.removeFromCart = function removeFromCart(_ref4) {
 	});
 };
 
-var setCheckoutOption = exports.setCheckoutOption = function setCheckoutOption(_ref5) {
-	var step = _ref5.step,
-	    option = _ref5.option,
-	    value = _ref5.value;
-
+export const setCheckoutOption = ({ step, option, value }) => {
 	logEvent({
 		eventName: event.SET_CHECKOUT_OPTION,
 		eventParameters: {
@@ -114,9 +90,7 @@ var setCheckoutOption = exports.setCheckoutOption = function setCheckoutOption(_
 	});
 };
 
-var search = exports.search = function search(_ref6) {
-	var searchText = _ref6.searchText;
-
+export const search = ({ searchText }) => {
 	logEvent({
 		eventName: event.SEARCH,
 		eventParameters: {
@@ -125,20 +99,16 @@ var search = exports.search = function search(_ref6) {
 	});
 };
 
-var beginCheckout = exports.beginCheckout = function beginCheckout(_ref7) {
-	var order = _ref7.order;
+export const beginCheckout = ({ order }) => {
+	const gaItems = order.items.map(item => ({
+		id: item.sku && item.sku.length > 0 ? item.sku : item.product_id,
+		name: item.name,
+		price: item.price.toString(),
+		variant: item.variant_name,
+		quantity: item.quantity
+	}));
 
-	var gaItems = order.items.map(function (item) {
-		return {
-			id: item.sku && item.sku.length > 0 ? item.sku : item.product_id,
-			name: item.name,
-			price: item.price.toString(),
-			variant: item.variant_name,
-			quantity: item.quantity
-		};
-	});
-
-	var gaPurchase = {
+	const gaPurchase = {
 		transaction_id: order.number,
 		value: order.grand_total,
 		items: gaItems
@@ -150,20 +120,16 @@ var beginCheckout = exports.beginCheckout = function beginCheckout(_ref7) {
 	});
 };
 
-var purchase = exports.purchase = function purchase(_ref8) {
-	var order = _ref8.order;
+export const purchase = ({ order }) => {
+	const gaItems = order.items.map(item => ({
+		id: item.sku && item.sku.length > 0 ? item.sku : item.product_id,
+		name: item.name,
+		price: item.price.toString(),
+		variant: item.variant_name,
+		quantity: item.quantity
+	}));
 
-	var gaItems = order.items.map(function (item) {
-		return {
-			id: item.sku && item.sku.length > 0 ? item.sku : item.product_id,
-			name: item.name,
-			price: item.price.toString(),
-			variant: item.variant_name,
-			quantity: item.quantity
-		};
-	});
-
-	var gaPurchase = {
+	const gaPurchase = {
 		transaction_id: order.number,
 		value: order.grand_total,
 		tax: order.tax_total.toString(),
@@ -177,14 +143,11 @@ var purchase = exports.purchase = function purchase(_ref8) {
 	});
 };
 
-var isGtagInstalled = function isGtagInstalled() {
+const isGtagInstalled = () => {
 	return typeof gtag !== 'undefined';
 };
 
-var logEvent = function logEvent(_ref9) {
-	var eventName = _ref9.eventName,
-	    eventParameters = _ref9.eventParameters;
-
+const logEvent = ({ eventName, eventParameters }) => {
 	if (isGtagInstalled()) {
 		gtag('event', eventName, eventParameters);
 	}

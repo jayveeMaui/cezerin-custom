@@ -1,92 +1,79 @@
-'use strict';
+import queryString from 'query-string';
+import { getJSONLD } from './lib/jsonld';
+import { addCartItem, deleteCartItem, updateCartItemQuantiry, fetchMoreProducts, setSort, fetchShippingMethods, fetchPaymentMethods, updateCart, updateShippingAddress, updateBillingAddress, checkout } from './actions';
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.mapDispatchToProps = exports.mapStateToProps = undefined;
-
-var _queryString = require('query-string');
-
-var _queryString2 = _interopRequireDefault(_queryString);
-
-var _jsonld = require('./lib/jsonld');
-
-var _actions = require('./actions');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var setQuery = function setQuery(history, query) {
+const setQuery = (history, query) => {
 	if (history && history.location) {
-		var newLocation = history.location.pathname + '?' + _queryString2.default.stringify(query);
+		const newLocation = history.location.pathname + '?' + queryString.stringify(query);
 		history.push(newLocation);
 	}
 };
 
-var mapStateToProps = exports.mapStateToProps = function mapStateToProps(state, ownProps) {
+export const mapStateToProps = (state, ownProps) => {
 	return {
 		state: state.app
 	};
 };
 
-var mapDispatchToProps = exports.mapDispatchToProps = function mapDispatchToProps(dispatch, ownProps) {
+export const mapDispatchToProps = (dispatch, ownProps) => {
 	return {
-		addCartItem: function addCartItem(item) {
-			dispatch((0, _actions.addCartItem)(item));
+		addCartItem: item => {
+			dispatch(addCartItem(item));
 		},
-		deleteCartItem: function deleteCartItem(item_id) {
-			dispatch((0, _actions.deleteCartItem)(item_id));
+		deleteCartItem: item_id => {
+			dispatch(deleteCartItem(item_id));
 		},
-		updateCartItemQuantiry: function updateCartItemQuantiry(item_id, quantity) {
-			dispatch((0, _actions.updateCartItemQuantiry)(item_id, quantity));
+		updateCartItemQuantiry: (item_id, quantity) => {
+			dispatch(updateCartItemQuantiry(item_id, quantity));
 		},
-		updateCart: function updateCart(data, callback) {
-			dispatch((0, _actions.updateCart)(data, callback));
+		updateCart: (data, callback) => {
+			dispatch(updateCart(data, callback));
 		},
-		updateShippingAddress: function updateShippingAddress(shippingAddress) {
-			dispatch((0, _actions.updateShippingAddress)(shippingAddress));
+		updateShippingAddress: shippingAddress => {
+			dispatch(updateShippingAddress(shippingAddress));
 		},
-		updateBillingAddress: function updateBillingAddress(billingAddress) {
-			dispatch((0, _actions.updateBillingAddress)(billingAddress));
+		updateBillingAddress: billingAddress => {
+			dispatch(updateBillingAddress(billingAddress));
 		},
-		checkout: function checkout(data) {
-			dispatch((0, _actions.checkout)(data, ownProps.history));
+		checkout: data => {
+			dispatch(checkout(data, ownProps.history));
 		},
-		loadMoreProducts: function loadMoreProducts() {
-			dispatch((0, _actions.fetchMoreProducts)());
+		loadMoreProducts: () => {
+			dispatch(fetchMoreProducts());
 		},
-		loadShippingMethods: function loadShippingMethods() {
-			dispatch((0, _actions.fetchShippingMethods)());
+		loadShippingMethods: () => {
+			dispatch(fetchShippingMethods());
 		},
-		loadPaymentMethods: function loadPaymentMethods() {
-			dispatch((0, _actions.fetchPaymentMethods)());
+		loadPaymentMethods: () => {
+			dispatch(fetchPaymentMethods());
 		},
-		setSearch: function setSearch(search) {
-			var query = _queryString2.default.parse(ownProps.history.location.search);
+		setSearch: search => {
+			const query = queryString.parse(ownProps.history.location.search);
 			query.search = search;
 			setQuery(ownProps.history, query);
 		},
-		setSort: function setSort(sort) {
-			dispatch((0, _actions.setSort)(sort));
+		setSort: sort => {
+			dispatch(setSort(sort));
 		},
-		setPriceFromAndTo: function setPriceFromAndTo(priceFrom, priceTo) {
-			var query = _queryString2.default.parse(ownProps.history.location.search);
+		setPriceFromAndTo: (priceFrom, priceTo) => {
+			const query = queryString.parse(ownProps.history.location.search);
 			query.price_from = priceFrom;
 			query.price_to = priceTo;
 			setQuery(ownProps.history, query);
 		},
-		setPriceFrom: function setPriceFrom(priceFrom) {
-			var query = _queryString2.default.parse(ownProps.history.location.search);
+		setPriceFrom: priceFrom => {
+			const query = queryString.parse(ownProps.history.location.search);
 			query.price_from = priceFrom;
 			setQuery(ownProps.history, query);
 		},
-		setPriceTo: function setPriceTo(priceTo) {
-			var query = _queryString2.default.parse(ownProps.history.location.search);
+		setPriceTo: priceTo => {
+			const query = queryString.parse(ownProps.history.location.search);
 			query.price_to = priceTo;
 			setQuery(ownProps.history, query);
 		},
-		setFilterAttribute: function setFilterAttribute(name, value) {
-			var query = _queryString2.default.parse(ownProps.history.location.search);
-			var queryKey = 'attributes.' + name;
+		setFilterAttribute: (name, value) => {
+			let query = queryString.parse(ownProps.history.location.search);
+			const queryKey = `attributes.${name}`;
 
 			if (query[queryKey]) {
 				if (Array.isArray(query[queryKey])) {
@@ -100,16 +87,14 @@ var mapDispatchToProps = exports.mapDispatchToProps = function mapDispatchToProp
 
 			setQuery(ownProps.history, query);
 		},
-		unsetFilterAttribute: function unsetFilterAttribute(name, value) {
-			var query = _queryString2.default.parse(ownProps.history.location.search);
-			var queryKey = 'attributes.' + name;
-			var values = query[queryKey];
+		unsetFilterAttribute: (name, value) => {
+			let query = queryString.parse(ownProps.history.location.search);
+			const queryKey = `attributes.${name}`;
+			const values = query[queryKey];
 
 			if (values) {
 				if (Array.isArray(values)) {
-					query[queryKey] = values.filter(function (v) {
-						return v !== value;
-					});
+					query[queryKey] = values.filter(v => v !== value);
 				} else {
 					query[queryKey] = undefined;
 				}
@@ -117,16 +102,16 @@ var mapDispatchToProps = exports.mapDispatchToProps = function mapDispatchToProp
 
 			setQuery(ownProps.history, query);
 		},
-		setLocation: function setLocation(path) {
+		setLocation: path => {
 			ownProps.history.push(path);
 		},
-		goBack: function goBack() {
+		goBack: () => {
 			if (ownProps.history.length > 0) {
 				ownProps.history.goBack();
 			}
 		},
-		getJSONLD: function getJSONLD(state) {
-			return (0, _jsonld.getJSONLD)(state);
+		getJSONLD: state => {
+			return getJSONLD(state);
 		}
 	};
 };
