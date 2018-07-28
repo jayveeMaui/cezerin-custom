@@ -1,1 +1,1 @@
-web: npm start-store
+web: npm start
