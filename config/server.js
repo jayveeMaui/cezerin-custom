@@ -3,7 +3,7 @@ const dbHost = process.env.DB_HOST || 'ds257551.mlab.com';
 const dbPort = process.env.DB_PORT || 57551;
 const dbName = process.env.DB_NAME || 'shop';
 const dbUser = process.env.DB_USER || 'jayveeTest';
-const dbPass = process.env.DB_PASS || 'testJayvee24';
+const dbPass = process.env.DB_PASS || 'TestJayvee24';
 const dbCred =
 	dbUser.length > 0 || dbPass.length > 0 ? `${dbUser}:${dbPass}@` : '';
 
