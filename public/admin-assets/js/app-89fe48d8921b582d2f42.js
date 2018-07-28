@@ -1,4 +1,4 @@
-/*! Created: Sat, 28 Jul 2018 23:36:23 GMT */ !(function(e) {
+/*! Created: Sat, 28 Jul 2018 23:52:54 GMT */ !(function(e) {
 	function t(t) {
 		for (
 			var a, i, l = t[0], s = t[1], u = t[2], c = 0, f = [];
@@ -5063,7 +5063,6 @@
 		e.exports = {
 			language: 'en',
 			apiBaseUrl: 'https://shop-app-api.herokuapp.com/api/v1',
-			apiWebSocketUrl: 'ws://shop-app-api.herokuapp.com',
 			developerMode: !0
 		};
 	},
