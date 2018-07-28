@@ -1,1 +1,1 @@
-web: npm start
+web: node -r esm dist/store/server/index.js
